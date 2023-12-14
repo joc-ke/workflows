@@ -82,12 +82,12 @@ jobs:
       #   password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Generer midlertidig token for jobben
-        id: temporary_token
-        uses: tibdex/github-app-token@v2.0.0
-        with:
-          app_id: ${{ secrets.BOT_APP_ID }}
-          private_key: ${{ secrets.BOT_PRIVATE_KEY }}
+      # - name: Generer midlertidig token for jobben
+      #   id: temporary_token
+      #   uses: tibdex/github-app-token@v2.0.0
+      #   with:
+      #     app_id: ${{ secrets.BOT_APP_ID }}
+      #     private_key: ${{ secrets.BOT_PRIVATE_KEY }}
 
       - name: Sjekk ut kildekode for konvertering
         uses: actions/checkout@v3.5.3
