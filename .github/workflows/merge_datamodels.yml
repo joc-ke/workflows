@@ -1,0 +1,80 @@
+---
+# -------------------------------------
+# Example usage (minimum config):
+# -------------------------------------
+# name: Bygg komplett datamodell for Panorama
+#
+# on:
+#   push:
+#     branches:
+#       - main
+#
+# jobs:
+#   merge_datamodels:
+#     uses: SPHF-Nettverk-IaC/workflows/.github/workflows/merge_datamodels_panorama.yml@main
+
+name: Merge datamodels
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Reference version for converter script ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      path_global_dm:
+        description: "Path for where global data model is checked out to"
+        required: false
+        default: "dm-global"
+        type: string
+      path_local_dm:
+        description: "Path for where local data model is checked out to"
+        required: false
+        default: "dm-local"
+        type: string
+      output_file:
+        description: "Filename of output file from converter"
+        required: false
+        default: "terraform.tfvars.json"
+        type: string
+      container_version:
+        description: "Version of container used to carry out the workflow"
+        required: false
+        type: string
+        default: "0.0.39"
+
+jobs:
+  merge_datamodels:
+    name: Bygg komplett datamodell for Panorama
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/sphf-nettverk-iac/runner-environment:${{ inputs.container_version }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Generer midlertidig token for jobben
+        id: temporary_token
+        uses: tibdex/github-app-token@v2.0.0
+        with:
+          app_id: ${{ secrets.BOT_APP_ID }}
+          private_key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Sjekk ut kildekode for konvertering
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/converter-pan-dm
+          path: converter
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Kjør script for konvertering og lagre utdata
+        run: python3 convert_pan_dm.py ../${{ inputs.path_global_dm }}/ ../${{ inputs.path_local_dm }}
+        working-directory: converter/
+
+      - name: Last opp datamodel som artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: merged-datamodel-${{ github.event.repository.name }}-panorama-pr-${{ github.event.pull_request.number }}
+          path: converter/${{ inputs.output_file }}
