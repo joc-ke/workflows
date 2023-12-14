@@ -43,6 +43,33 @@ on:
         required: false
         type: string
         default: "0.0.39"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Reference version for converter script ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      path_global_dm:
+        description: "Path for where global data model is checked out to"
+        required: false
+        default: "dm-global"
+        type: string
+      path_local_dm:
+        description: "Path for where local data model is checked out to"
+        required: false
+        default: "dm-local"
+        type: string
+      output_file:
+        description: "Filename of output file from converter"
+        required: false
+        default: "terraform.tfvars.json"
+        type: string
+      container_version:
+        description: "Version of container used to carry out the workflow"
+        required: false
+        type: string
+        default: "0.0.39"
 
 jobs:
   merge_datamodels:
