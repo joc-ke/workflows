@@ -69,25 +69,25 @@ on:
         description: "Version of container used to carry out the workflow"
         required: false
         type: string
-        default: "0.0.39"
+        default: "latest"
 
 jobs:
   merge_datamodels:
     name: Bygg komplett datamodell for Panorama
     runs-on: self-hosted
     container:
-      # image: ghcr.io/sphf-nettverk-iac/runner-environment:${{ inputs.container_version }}
-      # credentials:
-      #   username: ${{ github.actor }}
-      #   password: ${{ secrets.GITHUB_TOKEN }}
+      image: ghcr.io/joc-ke/runner-environment:${{ inputs.container_version }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      # - name: Generer midlertidig token for jobben
-      #   id: temporary_token
-      #   uses: tibdex/github-app-token@v2.0.0
-      #   with:
-      #     app_id: ${{ secrets.BOT_APP_ID }}
-      #     private_key: ${{ secrets.BOT_PRIVATE_KEY }}
+      - name: Generer midlertidig token for jobben
+        id: temporary_token
+        uses: tibdex/github-app-token@v2.0.0
+        with:
+          app_id: ${{ secrets.BOT_APP_ID }}
+          private_key: ${{ secrets.BOT_PRIVATE_KEY }}
 
       - name: Sjekk ut kildekode for konvertering
         uses: actions/checkout@v3.5.3
