@@ -1,0 +1,201 @@
+---
+# -------------------------------------
+# Example usage (minimum config):
+# -------------------------------------
+# name: Sjekk ut datamodell og moduler
+#
+# on:
+#   push:
+#     branches:
+#       - main
+#
+# jobs:
+#   checkout_dm_and_modules:
+#     uses: SPHF-Nettverk-IaC/workflows/.github/workflows/checkout_dm_and_modules.yml@main
+#     with:
+#       tfstate_directory: '/mnt/tfstate'
+#       checkout_folder_dm_local: 'dm-local'
+#       checkout_folder_dnac: 'tf-dnac'
+#       version_dnac: '1.2.3'
+#       ...
+
+name: Checkout
+
+on:
+  workflow_call:
+    inputs:
+      tfstate_directory:
+        default: "/mnt/tfstate"
+        required: false
+        type: string
+      checkout_folder_dm_local:
+        description: "Folder name where local data model repository is checked out to"
+        default: "dm-local"
+        required: false
+        type: string
+      checkout_folder_dm_global:
+        description: "Folder name where global data model repository is checked out to"
+        default: "dm-global"
+        required: false
+        type: string
+      checkout_folder_dnac:
+        description: "Folder name where DNAC TF module repository is checked out to"
+        default: "tf-dnac"
+        required: false
+        type: string
+      checkout_folder_ise:
+        description: "Folder name where ISE TF module repository is checked out to"
+        default: "tf-ise"
+        required: false
+        type: string
+      checkout_folder_panorama:
+        description: "Folder name where Panorama TF module repository is checked out to"
+        default: "tf-panorama"
+        required: false
+        type: string
+      checkout_folder_aci:
+        description: "Folder name where ACI module repository is checked out to"
+        default: "tf-aci"
+        required: false
+        type: string
+      checkout_folder_ndo:
+        description: "Folder name where NDO module repository is checked out to"
+        default: "tf-ndo"
+        required: false
+        type: string
+      checkout_folder_pyats:
+        description: "Folder name where pyats module repository is checked out to"
+        default: "tests-network-pyats"
+        required: false
+        type: string
+      checkout_folder_fusion:
+        description: "Folder name where fusion module repository is checked out to"
+        default: "tf-fusion"
+        required: false
+        type: string
+      version_dm_global:
+        description: 'Reference version for global data model repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      version_dnac:
+        description: 'Reference version for DNAC TF module repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      version_ise:
+        description: 'Reference version for ISE TF module repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      version_panorama:
+        description: 'Reference version for Panorama TF module repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      version_aci:
+        description: 'Reference version for ACI TF module repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      version_ndo:
+        description: 'Reference version for NDO TF module repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      version_pyats:
+        description: 'Reference version for Pyats module repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+      version_fusion:
+        description: 'Reference version for Fusion TF module repository ("main", "v1.2.3", etc)'
+        default: "main"
+        required: false
+        type: string
+
+jobs:
+  checkout_modules:
+    name: Sjekk ut moduler
+    runs-on: self-hosted
+
+    steps:
+      - name: Generer midlertidig token for jobben
+        id: temporary_token
+        uses: tibdex/github-app-token@v2.0.0
+        with:
+          app_id: ${{ secrets.BOT_APP_ID }}
+          private_key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Opprett mappe
+        run: mkdir -p ${{ inputs.tfstate_directory }}/${{ github.repository }}
+
+      - name: Sjekk ut kildekode for lokal datamodell
+        uses: actions/checkout@v3.5.3
+        with:
+          path: ${{ inputs.checkout_folder_dm_local }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for global datamodell
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/datamodel-global
+          ref: ${{ inputs.version_dm_global }}
+          path: ${{ inputs.checkout_folder_dm_global }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for DNAC
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/tf-dnac
+          ref: ${{ inputs.version_dnac }}
+          path: ${{ inputs.checkout_folder_dnac }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for ISE
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/tf-ise
+          ref: ${{ inputs.version_ise }}
+          path: ${{ inputs.checkout_folder_ise }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for Panorama
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/tf-paloalto
+          ref: ${{ inputs.version_panorama }}
+          path: ${{ inputs.checkout_folder_panorama }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for ACI
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/tf-aci
+          ref: ${{ inputs.version_aci }}
+          path: ${{ inputs.checkout_folder_aci }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for NDO
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/tf-ndo
+          ref: ${{ inputs.version_ndo }}
+          path: ${{ inputs.checkout_folder_ndo }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for Pyats
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/tests-network-pyats
+          ref: ${{ inputs.version_pyats }}
+          path: ${{ inputs.checkout_folder_pyats }}
+          token: ${{ steps.temporary_token.outputs.token }}
+
+      - name: Sjekk ut kildekode for Fusion
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: SPHF-Nettverk-IaC/tf-fusion
+          ref: ${{ inputs.version_fusion }}
+          path: ${{ inputs.checkout_folder_fusion }}
+          token: ${{ steps.temporary_token.outputs.token }}

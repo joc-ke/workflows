@@ -1,0 +1,63 @@
+---
+# -------------------------------------
+# Example usage (minimum config):
+# -------------------------------------
+# name: Oppdater benyttede versjoner
+#
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'manifest.yml'
+#
+# jobs:
+#   update_repo_vars:
+#     uses: SPHF-Nettverk-IaC/workflows/.github/workflows/update_repo_variable.yml@main
+#     secrets: inherit
+
+name: Update repository variables
+
+on:
+  workflow_call:
+
+jobs:
+  update_env:
+    name: Oppdater benyttede releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generer midlertidig token for jobben
+        id: temporary_token
+        uses: tibdex/github-app-token@v2.0.0
+        with:
+          app_id: ${{ secrets.BOT_APP_ID }}
+          private_key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Sjekk ut script for oppdatering av token
+        uses: actions/checkout@v3.5.3
+        with:
+          repository: joc-ke/workflows
+          token: ${{ steps.temporary_token.outputs.token }}
+          path: script
+          sparse-checkout: .
+
+      - name: Sjekk ut manifest
+        uses: actions/checkout@v3.5.3
+        with:
+          path: manifest
+          sparse-checkout: .github
+
+      - name: Installer Python kjøremiljø
+        uses: actions/setup-python@v4.7.1
+        with:
+          python-version: "3.10"
+
+      - name: Installer nødvendige pakker via pip
+        run: pip install requests pyyaml
+
+      - name: Oppdater variabler for repository
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ steps.temporary_token.outputs.token }}
+        run: python3 update_repo_variable.py
+        working-directory: script
