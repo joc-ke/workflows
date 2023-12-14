@@ -76,10 +76,10 @@ jobs:
     name: Bygg komplett datamodell for Panorama
     runs-on: self-hosted
     container:
-      image: ghcr.io/sphf-nettverk-iac/runner-environment:${{ inputs.container_version }}
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      # image: ghcr.io/sphf-nettverk-iac/runner-environment:${{ inputs.container_version }}
+      # credentials:
+      #   username: ${{ github.actor }}
+      #   password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Generer midlertidig token for jobben
@@ -92,7 +92,7 @@ jobs:
       - name: Sjekk ut kildekode for konvertering
         uses: actions/checkout@v3.5.3
         with:
-          repository: SPHF-Nettverk-IaC/converter-pan-dm
+          repository: joc-ke/converter-pan-dm
           path: converter
           token: ${{ steps.temporary_token.outputs.token }}
 
